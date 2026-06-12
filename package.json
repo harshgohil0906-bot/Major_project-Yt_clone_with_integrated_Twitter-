@@ -1,0 +1,12 @@
+{
+  "name": "major_proj_yt_clone_with_twitter",
+  "version": "1.0.0",
+  "description": "backend project with high bar complexities",
+  "license": "ISC",
+  "author": "harsh",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
