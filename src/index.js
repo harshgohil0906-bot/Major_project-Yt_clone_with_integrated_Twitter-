@@ -4,7 +4,15 @@ import connectDb from "./db/db.js";
 dotenv.config({
     path: './env'
 })
-connectDb();
+connectDb()
+.then(()=>{
+    const port = process.env.PORT || 8000
+    console.log(`server is running at ${port}`);
+    
+})
+.catch((err)=>{
+    console.log("Mongo Db connection failed!!!", err);
+})
 
 // two most imp-->
 // 1) always write the code of DB connection in try,catch bec. it may provides an error while connection of DB with backend
