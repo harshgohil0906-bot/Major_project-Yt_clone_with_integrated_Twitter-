@@ -1,12 +1,13 @@
 // 1 approach
 
-const asynchandler = (requesthandler)=>{
-    return (req, res, next)=>{
-        Promise.resolve(requesthandler(req, res, next)).catch((err) => next(err))
-    }
-}
+const asynchandler = (requesthandler) => {
+    console.log("hi........")
+    return (req, res, next) => {
+        Promise.resolve(requesthandler(req, res, next)).catch((err) => console.log(err));
+    };
+};
 
-export {asynchandler}
+export { asynchandler };
 
 
 // 2nd approach
@@ -17,7 +18,7 @@ export {asynchandler}
 // const asynchandler = (func) =>  ()=>{} //generally curly braces ko hta dete dusre vale arrow func mai
 
 // const asynchandler = (fn)=>{
-//     async(req, res, next)=>{
+//    return async(req, res, next)=>{
 //         try{
 //             await fn(req, res, next)
 //         }

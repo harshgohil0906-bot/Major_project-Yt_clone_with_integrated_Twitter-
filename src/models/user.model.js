@@ -1,4 +1,5 @@
 import mongoose, {Schema} from "mongoose";// if we don't write {Schema} here then we have to write model.Schema in 2nd line
+import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 const userSchema = new Schema({
     username: {
@@ -16,6 +17,11 @@ const userSchema = new Schema({
         lowercase: true,
         trim: true,
     },
+    password: {
+        type: String, // challanging but we wil solve later bec we kept as string it may leak through database & if we kept as a encrypted how do we compare encrypted pass to original pass bec. encrypted shows big string
+        // so it is solved by bcrypt package
+        required: true
+    },
     fullname: {
         type: String, // cloudnary url
         required: true,
@@ -23,7 +29,9 @@ const userSchema = new Schema({
     }, 
     avatar: {
         type: String,
-        required: true,
+        required: true
+
+
     },
     coverImage: {
         type: String, // cloudnary url
@@ -35,21 +43,17 @@ const userSchema = new Schema({
             ref: "video"
         }
     ],
-    password: {
-        type: String, // challanging but we wil solve later bec we kept as string it may leak through database & if we kept as a encrypted how do we compare encrypted pass to original pass bec. encrypted shows big string
-        // so it is solved by bcrypt package
-        required: true
-    },
+    
     refreshToken : {
         type: String
     }
 
-}, {timstamps: true})
+}, {timestamps: true})
 
 userSchema.pre("save", async function (next){
     if(!this.isModified("password")) return next();
-    this.password = bcrypt.hash(this.password, 10)
-    next()
+    this.password = await bcrypt.hash(this.password, 10)
+    next;
 })
 
 userSchema.methods.isPasswordCorrect = async function(password){
