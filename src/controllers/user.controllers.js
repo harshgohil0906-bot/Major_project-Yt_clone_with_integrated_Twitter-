@@ -1,4 +1,4 @@
-import { asynchandler } from "../utils/aync_handler.js";
+import { asynchandler } from "../utils/async_handler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
@@ -13,7 +13,7 @@ const generateAccessAndRefereshTokens = async(userId) =>{
         const refreshToken = user.generateRefreshToken()
 
         user.refreshToken = refreshToken
-        await user.save({ validateBeforeSave: false })
+        await user.save({ validateBeforeSave: false }) // means save krne krlo bina validate kiye
 
         return {accessToken, refreshToken}
 
@@ -27,10 +27,9 @@ const registerUser = asynchandler(async (req, res, next) => {
     console.log("FILES:", req.files);
 
     const { fullname, email, username, password } = req.body;
-    console.log(username)
     // 1. Validation
     if ([fullname, email, username, password].some((field) => !field || field?.trim() === "")) {
-        throw new ApiError(400, "All fields are required");
+        throw new ApiError(400, "All fields are required"); // some method gives true if anyone is true
     }
 
     const existedUser = await User.findOne({
@@ -86,7 +85,7 @@ const registerUser = asynchandler(async (req, res, next) => {
 });
 
 
-const loginUser = asyncHandler(async (req, res) =>{
+const loginUser = asynchandler(async (req, res) =>{
     // req body -> data
     // username or email
     //find the user
@@ -146,7 +145,7 @@ const loginUser = asyncHandler(async (req, res) =>{
 
 })
 
-const logoutUser = asyncHandler(async(req, res) => {
+const logoutUser = asynchandler(async(req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
@@ -171,7 +170,7 @@ const logoutUser = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200, {}, "User logged Out"))
 })
 
-const refreshAccessToken = asyncHandler(async (req, res) => {
+const refreshAccessToken = asynchandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
     if (!incomingRefreshToken) {
@@ -218,4 +217,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 
 })
-export { registerUser };
+export {
+     registerUser,
+     loginUser,
+     logoutUser
+};
