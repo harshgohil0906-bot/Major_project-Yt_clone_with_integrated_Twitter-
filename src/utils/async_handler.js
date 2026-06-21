@@ -2,9 +2,8 @@
 
 const asynchandler = (requesthandler) => {
     return (req, res, next) => {
-        Promise.resolve(requesthandler(req, res, next)).catch((err) => console.log(err));
+        Promise.resolve(requesthandler(req, res, next)).catch(next);
     };
-    
 };
 
 export { asynchandler };
