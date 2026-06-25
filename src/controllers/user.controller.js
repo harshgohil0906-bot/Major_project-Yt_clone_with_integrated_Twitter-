@@ -1,8 +1,9 @@
-import { asynchandler } from "../utils/async_handler.js";
+import { asyncHandler } from "../utils/async_handler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { client } from "../utils/openai.js"
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose"
 
@@ -23,7 +24,7 @@ const generateAccessAndRefereshTokens = async(userId) =>{
         throw new ApiError(500, "Something went wrong while generating referesh and access token")
     }
 }
-const registerUser = asynchandler(async (req, res, next) => {
+const registerUser = asyncHandler(async (req, res, next) => {
      console.log("BODY:", req.body);
     console.log("FILES:", req.files);
 
@@ -86,7 +87,7 @@ const registerUser = asynchandler(async (req, res, next) => {
 });
 
 
-const loginUser = asynchandler(async (req, res) =>{
+const loginUser = asyncHandler(async (req, res) =>{
     // req body -> data
     // username or email
     //find the user
@@ -146,7 +147,7 @@ const loginUser = asynchandler(async (req, res) =>{
 
 })
 
-const logoutUser = asynchandler(async(req, res) => {
+const logoutUser = asyncHandler(async(req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
@@ -171,7 +172,7 @@ const logoutUser = asynchandler(async(req, res) => {
     .json(new ApiResponse(200, {}, "User logged Out"))
 })
 
-const refreshAccessToken = asynchandler(async (req, res) => {
+const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
     if (!incomingRefreshToken) {
@@ -220,7 +221,7 @@ const refreshAccessToken = asynchandler(async (req, res) => {
 })
 
 // if user forgets its password  
-const changeCurrentPassword = asynchandler(async(req, res)=>{
+const changeCurrentPassword = asyncHandler(async(req, res)=>{
     const {oldPassword, newPassword} = req.body
     const user = await User.findById(req.user?._id)
     const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
@@ -237,7 +238,7 @@ const changeCurrentPassword = asynchandler(async(req, res)=>{
     .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
 
-const getCurrentUser = asynchandler(async(req, res) => {
+const getCurrentUser = asyncHandler(async(req, res) => {
     return res
     .status(200)
     .json(new ApiResponse(
@@ -247,7 +248,7 @@ const getCurrentUser = asynchandler(async(req, res) => {
     ))
 })
 
-const updateAccountDetails = asynchandler(async(req, res) => {
+const updateAccountDetails = asyncHandler(async(req, res) => {
     const {fullname, email} = req.body
 
     if (!fullname || !email) {
@@ -271,7 +272,7 @@ const updateAccountDetails = asynchandler(async(req, res) => {
     .json(new ApiResponse(200, user, "Account details updated successfully"))
 });
 
-const updateUserAvatar = asynchandler(async(req, res) => {
+const updateUserAvatar = asyncHandler(async(req, res) => {
     const avatarLocalPath = req.file?.path
 
     if (!avatarLocalPath) {
@@ -304,7 +305,7 @@ const updateUserAvatar = asynchandler(async(req, res) => {
     )
 })
 
-const updateUserCoverImage = asynchandler(async(req, res) => {
+const updateUserCoverImage = asyncHandler(async(req, res) => {
     const coverImageLocalPath = req.file?.path
 
     if (!coverImageLocalPath) {
@@ -338,7 +339,7 @@ const updateUserCoverImage = asynchandler(async(req, res) => {
     )
 })
 
-const getUserChannelProfile = asynchandler(async(req, res) => {
+const getUserChannelProfile = asyncHandler(async(req, res) => {
     const {username} = req.params
 
     if (!username?.trim()) {// after trim of username === undefined, then throw new ApiError()
@@ -410,7 +411,7 @@ const getUserChannelProfile = asynchandler(async(req, res) => {
     )
 })
 
-const getWatchHistory = asynchandler(async(req, res) => {
+const getWatchHistory = asyncHandler(async(req, res) => {
     const user = await User.aggregate([
         {
             $match: {
@@ -464,6 +465,21 @@ const getWatchHistory = asynchandler(async(req, res) => {
     )
 })
 
+const chatGPT = asyncHandler(async(req, res)=>{
+    const { message } = req.body
+    if(!message || message.trim() === ""){
+        return res.status(400).json(new ApiResponse(400, "Message is required"))
+    }
+    const completion = await client.responses.create({
+        model: "gpt-3.5-turbo",
+        input: message
+    })
+    const text = completion.output[0]?.content[0]?.text || "No Response"
+
+    // if all succesfully happens then it provides
+    return res.status(200).json(new ApiResponse(200, { text }, "Chatgpt makes mistake"))
+})
+
 
 export {
     registerUser,
@@ -476,5 +492,6 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+    chatGPT
 };

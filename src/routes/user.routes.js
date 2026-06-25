@@ -10,8 +10,9 @@ import {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
-    getWatchHistory}
-      from "../controllers/user.controllers.js";
+    getWatchHistory,
+    chatGPT}
+      from "../controllers/user.controller.js";
       
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
@@ -44,7 +45,7 @@ router.route("/update-cover-image").patch(verifyJWT,upload.single("coverImage"),
 
 router.route("/c/:username").get(verifyJWT, getUserChannelProfile)
 router.route("/watch-history").get(verifyJWT, getWatchHistory)
-
+router.route("/chatgpt").post(verifyJWT, chatGPT)
 
 
 

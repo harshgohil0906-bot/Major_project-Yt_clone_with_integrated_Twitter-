@@ -19,12 +19,15 @@ app.get("/",async (req,res)=>{
 });
 
 // routes import
-import router from './routes/user.routes.js'
+import userRouter from './routes/user.routes.js'
+import videoRouter from './routes/video.routes.js'
 
 // app.js--> user.routes.js --> user.controllers.js
 // routes declaring --> now we have to use app.use() instead of app.get bec. we are writing routes in different file so we use here middleware
 
-app.use("/api/v1/users", router)
+app.use("/api/v1/users", userRouter) //http://localhost:8000/api/v1/users/register     why /api/v1/users ? why not directly /users bec. of it ("/api/v1/users") is a standard practice
+app.use("/api/v1/videos", videoRouter) 
+
 
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500
@@ -39,5 +42,5 @@ app.use((err, req, res, next) => {
     })
 })
 
-//http://localhost:8000/api/v1/users/register
+
 export {app}
