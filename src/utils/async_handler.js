@@ -1,12 +1,12 @@
 // 1 approach
 
-const asynchandler = (requesthandler) => {
+const asyncHandler = (requesthandler) => {
     return (req, res, next) => {
         Promise.resolve(requesthandler(req, res, next)).catch(next);
     };
 };
 
-export { asynchandler };
+export { asyncHandler };
 
 
 // 2nd approach
